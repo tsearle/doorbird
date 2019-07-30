@@ -16,13 +16,13 @@ typedef struct {
 	unsigned char salt[16];
 	unsigned char nonce[8];
 	unsigned char ciphertext[34];
-} doorbird_pkt;
+}__attribute__((packed)) doorbird_pkt;
 
 typedef struct {
 	char intercom_id[6];
 	char event [8];
 	unsigned timestamp;
-} doorbird_cipher_text;
+} __attribute__((packed)) doorbird_cipher_text;
 
 #define LOGGING(format, ...) printf(format, ##__VA_ARGS__)
 
@@ -126,6 +126,7 @@ doorbird_cipher_text decode_packet(unsigned char * packet, int size, char * pass
 
 	decrypted = decrypt_broadcast_notification(pkt, stretchPass);
 	
+	free(stretchPass);
 	decrypted.timestamp = ntohl(decrypted.timestamp);
 
 	return decrypted;

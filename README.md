@@ -16,4 +16,4 @@ make debug
 ```
 ./doorbird username pass
 ```
-*Note:* it must be run on the same network as the boorbird doorbell!
+*Note:* it must be run on the same network as the doorbird doorbell!

@@ -91,6 +91,7 @@ doorbird_cipher_text decode_packet(unsigned char * packet, int size, char * pass
 
 	LOG_DEBUG("Version %d detected\n", packet[3]);
 	strncpy(pass5, password, 5);
+	pass5[5] = 0;
 	unsigned opslimit = ntohl(pkt->opslimit);
 	unsigned memlimit = ntohl(pkt->memlimit);
 

@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <curl/curl.h>
 
 
 typedef struct {
@@ -40,6 +41,36 @@ void hexdump(unsigned char * data, int len) {
 	for(int i=0; i<len;i++) {
 		printf("0x%02X ", data[i]);
 	}
+}
+
+void sendRing(char * user) {
+	  CURL *curl;
+	  CURLcode res;
+	  char device_id[7];
+	  char url[1024];
+	  strncpy(device_id, user,6);
+	  device_id[6] = 0;
+	  snprintf(url, sizeof(url), "https://midoricorp.sipstacks.com/cgi-bin/doorbird/api.pl?code=%s", device_id);
+	  LOGGING("Invoking service %s\n", url);
+
+
+	 
+	  curl = curl_easy_init();
+	  if(curl) {
+		struct curl_slist *chunk = NULL;
+		chunk = curl_slist_append(chunk, "x-api-key: b82612e2-92b4-40e3-9cfb-15fdd99475f3");
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		res = curl_easy_perform(curl);
+		if(res != CURLE_OK) {
+      			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+              			curl_easy_strerror(res));
+		}
+
+		curl_easy_cleanup(curl);
+		curl_slist_free_all(chunk);
+	  }
+
 }
 
 unsigned char* stretchPasswordArgon(const char *password, unsigned char *salt, unsigned* oplimit, unsigned* memlimit) {
@@ -135,12 +166,16 @@ doorbird_cipher_text decode_packet(unsigned char * packet, int size, char * pass
 
 }
 
-void handle_event(char * event_str) {
+void handle_event(char * user, char * event_str) {
 	LOGGING("Got an event: '%s'\n", event_str);
 
 	/**
 	 * Add your logic for doorbell events here
 	 */
+
+	if( strncmp("1",event_str,1) == 0 ) {
+		sendRing(user);
+	}
 }
 
 
@@ -177,6 +212,8 @@ int main(int argc, char *argv[]) {
 
 	si_me.sin_port = htons(port2);
 	bind(s2, (struct sockaddr *)&si_me, sizeof(struct sockaddr));
+
+	curl_global_init(CURL_GLOBAL_DEFAULT);
 
 	while(1)
 	{
@@ -223,9 +260,11 @@ int main(int argc, char *argv[]) {
 		
 		timestamp = event.timestamp;
 
-		handle_event(event_str);
+		handle_event(user,event_str);
 
 	}
+
+        curl_global_cleanup();
 
 	return 0;
 

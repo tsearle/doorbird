@@ -1,10 +1,10 @@
 all: doorbird
 
 doorbird: doorbird.c
-	gcc doorbird.c -o doorbird -lsodium
+	gcc doorbird.c -o doorbird -lsodium -lcurl
 
-debug:
-	gcc doorbird.c -o doorbird -lsodium -DDEBUG
+debug: doorbird.c
+	gcc doorbird.c -o doorbird -lsodium -lcurl -DDEBUG
 
 clean:
 	rm doorbird

@@ -173,10 +173,10 @@ int main(int argc, char *argv[]) {
 	si_me.sin_port = htons(port1);
 	si_me.sin_addr.s_addr = INADDR_ANY;
 
-	bind(s1, (struct sockaddr *)&si_me, sizeof(struct sockaddr));
+	bind(s1, (struct sockaddr *)&si_me, sizeof(si_me));
 
 	si_me.sin_port = htons(port2);
-	bind(s2, (struct sockaddr *)&si_me, sizeof(struct sockaddr));
+	bind(s2, (struct sockaddr *)&si_me, sizeof(si_me));
 
 	while(1)
 	{
